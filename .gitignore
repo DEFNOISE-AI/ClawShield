@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Secrets
+keys/
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+
+# Docker volumes
+postgres-data/
+redis-data/
+
+# Drizzle
+drizzle/meta/
+
+# Bun
+bun.lockb
+
+# Sentry
+.sentryclirc
