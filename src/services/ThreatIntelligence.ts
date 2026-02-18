@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import { createHash } from 'node:crypto';
 import type { Redis } from 'ioredis';
 import type { Logger } from '../utils/logger.js';

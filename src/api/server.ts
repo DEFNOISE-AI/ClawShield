@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import Fastify, { type FastifyInstance } from 'fastify';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';

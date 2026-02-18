@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;

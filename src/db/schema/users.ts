@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {

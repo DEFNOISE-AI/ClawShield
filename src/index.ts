@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import IORedis from 'ioredis';
 import { loadConfig } from './utils/config.js';
 import { createLogger } from './utils/logger.js';

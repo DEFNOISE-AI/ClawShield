@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import type { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { AppError } from '../../utils/errors.js';
 import type { Logger } from '../../utils/logger.js';

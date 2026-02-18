@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import * as acorn from 'acorn';
 import { walk } from 'estree-walker';
 import type { Node } from 'estree';

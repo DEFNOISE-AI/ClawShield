@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import pino from 'pino';
 
 export function createLogger(level = 'info', isDev = false): pino.Logger {

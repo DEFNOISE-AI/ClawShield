@@ -2,6 +2,16 @@
   "name": "clawshield",
   "version": "1.0.0",
   "description": "Agent-to-agent firewall for OpenClaw",
+  "license": "AGPL-3.0",
+  "author": "DEFNOISE AI (https://github.com/DEFNOISE-AI)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DEFNOISE-AI/ClawShield.git"
+  },
+  "homepage": "https://github.com/DEFNOISE-AI/ClawShield",
+  "bugs": {
+    "url": "https://github.com/DEFNOISE-AI/ClawShield/issues"
+  },
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import type { FastifyInstance } from 'fastify';
 import { desc, eq, and, gte, lte } from 'drizzle-orm';
 import { z } from 'zod';

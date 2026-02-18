@@ -1,3 +1,5 @@
+// Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
+
 import type { FastifyRequest } from 'fastify';
 import type { AgentFirewall } from '../firewall/AgentFirewall.js';
 import type { InspectionResult } from '../../types/threat.types.js';
