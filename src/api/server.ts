@@ -70,10 +70,7 @@ export async function createServer(
   // CORS
   await fastify.register(cors, {
     origin: (origin, cb) => {
-      const allowed = [
-        ...config.corsOrigins,
-        ...(config.isDev ? ['http://localhost:3000'] : []),
-      ];
+      const allowed = [...config.corsOrigins, ...(config.isDev ? ['http://localhost:3000'] : [])];
       if (!origin || allowed.includes(origin)) {
         cb(null, true);
       } else {

@@ -29,11 +29,7 @@ export async function authRoutes(
       };
 
       // Check if user exists
-      const existing = await db
-        .select()
-        .from(users)
-        .where(eq(users.username, username))
-        .limit(1);
+      const existing = await db.select().from(users).where(eq(users.username, username)).limit(1);
 
       if (existing.length > 0) {
         throw new ValidationError('Username already taken');
@@ -77,11 +73,7 @@ export async function authRoutes(
         password: string;
       };
 
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.username, username))
-        .limit(1);
+      const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
 
       if (!user) {
         throw new AuthError('Invalid credentials');

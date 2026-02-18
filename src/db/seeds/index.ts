@@ -4,7 +4,8 @@ import { createDatabaseClient, closeDatabaseClient, getDb } from '../client.js';
 import { firewallRules } from '../schema/rules.js';
 
 async function seed() {
-  const dbUrl = process.env.DATABASE_URL ?? 'postgresql://postgres:password@localhost:5432/clawshield';
+  const dbUrl =
+    process.env.DATABASE_URL ?? 'postgresql://postgres:password@localhost:5432/clawshield';
   createDatabaseClient(dbUrl);
   const db = getDb();
 

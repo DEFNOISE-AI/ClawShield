@@ -25,29 +25,35 @@ export const safeStringSchema = z
   .max(1000)
   .regex(/^[^<>'"`;]*$/, 'Contains potentially unsafe characters');
 
-export const urlSchema = z.string().url().refine(
-  (url) => {
-    try {
-      const parsed = new URL(url);
-      return ['http:', 'https:'].includes(parsed.protocol);
-    } catch {
-      return false;
-    }
-  },
-  { message: 'URL must use http or https protocol' },
-);
+export const urlSchema = z
+  .string()
+  .url()
+  .refine(
+    (url) => {
+      try {
+        const parsed = new URL(url);
+        return ['http:', 'https:'].includes(parsed.protocol);
+      } catch {
+        return false;
+      }
+    },
+    { message: 'URL must use http or https protocol' },
+  );
 
-export const httpsUrlSchema = z.string().url().refine(
-  (url) => {
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  },
-  { message: 'URL must use https protocol' },
-);
+export const httpsUrlSchema = z
+  .string()
+  .url()
+  .refine(
+    (url) => {
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    },
+    { message: 'URL must use https protocol' },
+  );
 
 export const ipAddressSchema = z
   .string()

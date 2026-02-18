@@ -9,10 +9,7 @@ import { agents as agentsTable, agentCommunicationRules } from '../../db/schema/
 import { threats } from '../../db/schema/threats.js';
 import type { Database } from '../../db/client.js';
 import type { Logger } from '../../utils/logger.js';
-import type {
-  AgentContext,
-  AgentMessage,
-} from '../../types/agent.types.js';
+import type { AgentContext, AgentMessage } from '../../types/agent.types.js';
 import { AgentMessageSchema } from '../../types/agent.types.js';
 import type { InspectionResult, AlertPayload } from '../../types/threat.types.js';
 import type { ThreatLevel } from '../../types/threat.types.js';
@@ -139,10 +136,7 @@ export class AgentFirewall {
     }
   }
 
-  async inspectAgentMessage(
-    agentId: string,
-    message: unknown,
-  ): Promise<InspectionResult> {
+  async inspectAgentMessage(agentId: string, message: unknown): Promise<InspectionResult> {
     // 1. Validate message structure
     const validated = AgentMessageSchema.safeParse(message);
     if (!validated.success) {
@@ -151,15 +145,17 @@ export class AgentFirewall {
     const msg = validated.data;
 
     // 2. Agent-to-agent communication check
-    if (
-      (msg.type === 'sessions_send' || msg.type === 'sessions_spawn') &&
-      msg.targetAgentId
-    ) {
+    if ((msg.type === 'sessions_send' || msg.type === 'sessions_spawn') && msg.targetAgentId) {
       const allowed = await this.checkAgentToAgentCommunication(agentId, msg.targetAgentId);
       if (!allowed) {
-        await this.logThreat(agentId, 'unauthorized_agent_communication', 'Unauthorized agent-to-agent communication', {
-          targetAgentId: msg.targetAgentId,
-        });
+        await this.logThreat(
+          agentId,
+          'unauthorized_agent_communication',
+          'Unauthorized agent-to-agent communication',
+          {
+            targetAgentId: msg.targetAgentId,
+          },
+        );
         return {
           allowed: false,
           reason: 'Unauthorized agent-to-agent communication',
@@ -280,10 +276,15 @@ export class AgentFirewall {
       if (message.body && message.body.length > 100_000) {
         const trusted = await this.isTrustedDomain(agentId, domain);
         if (!trusted) {
-          await this.logThreat(agentId, 'data_exfiltration', 'Large data upload to untrusted domain', {
-            domain,
-            bodySize: message.body.length,
-          });
+          await this.logThreat(
+            agentId,
+            'data_exfiltration',
+            'Large data upload to untrusted domain',
+            {
+              domain,
+              bodySize: message.body.length,
+            },
+          );
           return true;
         }
       }
@@ -412,8 +413,7 @@ export class AgentFirewall {
     return ctx.trustedDomains.some((trusted) => {
       const normalizedTrusted = trusted.toLowerCase();
       return (
-        normalizedDomain === normalizedTrusted ||
-        normalizedDomain.endsWith(`.${normalizedTrusted}`)
+        normalizedDomain === normalizedTrusted || normalizedDomain.endsWith(`.${normalizedTrusted}`)
       );
     });
   }

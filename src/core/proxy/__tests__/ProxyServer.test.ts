@@ -45,11 +45,10 @@ describe('ProxyServer', () => {
 
   describe('config', () => {
     it('should use provided target URL', () => {
-      const custom = new ProxyServer(
-        mockFirewall as never,
-        logger,
-        { targetUrl: 'http://custom:9090', maxWsConnectionsPerIp: 3 },
-      );
+      const custom = new ProxyServer(mockFirewall as never, logger, {
+        targetUrl: 'http://custom:9090',
+        maxWsConnectionsPerIp: 3,
+      });
       expect(custom.getFastify()).toBeDefined();
     });
   });

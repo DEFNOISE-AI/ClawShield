@@ -76,7 +76,9 @@ describe('StaticAnalyzer', () => {
         await fetch(url);
       }
     `);
-    expect(result.vulnerabilities.some((v) => v.type === 'network_request' && v.severity === 'high')).toBe(true);
+    expect(
+      result.vulnerabilities.some((v) => v.type === 'network_request' && v.severity === 'high'),
+    ).toBe(true);
   });
 
   it('should detect obfuscated strings', () => {

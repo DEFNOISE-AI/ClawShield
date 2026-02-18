@@ -47,9 +47,7 @@ export class DynamicAnalyzer {
 
     const executionTimeMs = Date.now() - startTime;
     const safe =
-      suspiciousBehavior.length === 0 &&
-      networkAttempts.length === 0 &&
-      fsAttempts.length === 0;
+      suspiciousBehavior.length === 0 && networkAttempts.length === 0 && fsAttempts.length === 0;
 
     return {
       safe,

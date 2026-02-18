@@ -49,10 +49,10 @@ describe('ResponseInterceptor', () => {
   });
 
   it('should flag wildcard CORS', () => {
-    const result = interceptor.inspectResponse(
-      200,
-      { 'access-control-allow-origin': '*', 'x-content-type-options': 'nosniff' },
-    );
+    const result = interceptor.inspectResponse(200, {
+      'access-control-allow-origin': '*',
+      'x-content-type-options': 'nosniff',
+    });
     expect(result.safe).toBe(false);
     expect(result.issues.some((i) => i.includes('CORS'))).toBe(true);
   });
@@ -63,10 +63,10 @@ describe('ResponseInterceptor', () => {
   });
 
   it('should flag server version disclosure', () => {
-    const result = interceptor.inspectResponse(
-      200,
-      { server: 'Apache/2.4.41', 'x-content-type-options': 'nosniff' },
-    );
+    const result = interceptor.inspectResponse(200, {
+      server: 'Apache/2.4.41',
+      'x-content-type-options': 'nosniff',
+    });
     expect(result.issues.some((i) => i.includes('Server version'))).toBe(true);
   });
 

@@ -81,18 +81,12 @@ describe('DynamicAnalyzer', () => {
   });
 
   it('should handle timeout for infinite loops', async () => {
-    const result = await analyzer.execute(
-      `while(true) {}`,
-      { ...defaultConfig, timeout: 500 },
-    );
+    const result = await analyzer.execute(`while(true) {}`, { ...defaultConfig, timeout: 500 });
     expect(result.suspiciousBehavior.some((b) => b.includes('timed out'))).toBe(true);
   });
 
   it('should handle code that throws errors', async () => {
-    const result = await analyzer.execute(
-      `throw new Error('test error');`,
-      defaultConfig,
-    );
+    const result = await analyzer.execute(`throw new Error('test error');`, defaultConfig);
     // Throwing an error is not inherently suspicious
     expect(result.networkAttempts).toHaveLength(0);
     expect(result.fsAttempts).toHaveLength(0);

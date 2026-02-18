@@ -103,8 +103,18 @@ describe('AgentMonitor', () => {
     it('should return health for all registered agents', async () => {
       mockRedis.keys.mockResolvedValueOnce(['agent:metrics:a1', 'agent:metrics:a2']);
       mockRedis.hgetall
-        .mockResolvedValueOnce({ lastSeen: String(Date.now()), requestCount: '5', errorCount: '0', lastResponseTime: '30' })
-        .mockResolvedValueOnce({ lastSeen: String(Date.now()), requestCount: '3', errorCount: '1', lastResponseTime: '50' });
+        .mockResolvedValueOnce({
+          lastSeen: String(Date.now()),
+          requestCount: '5',
+          errorCount: '0',
+          lastResponseTime: '30',
+        })
+        .mockResolvedValueOnce({
+          lastSeen: String(Date.now()),
+          requestCount: '3',
+          errorCount: '1',
+          lastResponseTime: '50',
+        });
 
       const result = await monitor.getAllAgentHealth();
       expect(result).toHaveLength(2);

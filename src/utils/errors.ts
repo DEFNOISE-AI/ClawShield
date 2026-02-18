@@ -5,12 +5,7 @@ export class AppError extends Error {
   public readonly code: string;
   public readonly isOperational: boolean;
 
-  constructor(
-    message: string,
-    statusCode = 500,
-    code = 'INTERNAL_ERROR',
-    isOperational = true,
-  ) {
+  constructor(message: string, statusCode = 500, code = 'INTERNAL_ERROR', isOperational = true) {
     super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;
@@ -45,11 +40,7 @@ export class FirewallError extends AppError {
   public readonly threatLevel: string;
   public readonly agentId?: string;
 
-  constructor(
-    message: string,
-    threatLevel: string,
-    agentId?: string,
-  ) {
+  constructor(message: string, threatLevel: string, agentId?: string) {
     super(message, 403, 'FIREWALL_BLOCKED');
     this.threatLevel = threatLevel;
     this.agentId = agentId;

@@ -11,7 +11,11 @@ export type AgentStatus = z.infer<typeof AgentStatus>;
 export const AgentConfigSchema = z
   .object({
     id: z.string().uuid(),
-    name: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/),
+    name: z
+      .string()
+      .min(1)
+      .max(100)
+      .regex(/^[a-zA-Z0-9_-]+$/),
     endpoint: z.string().url(),
     apiKey: z.string().min(32).max(256),
     permissions: z.array(AgentPermission).max(10),
@@ -63,7 +67,11 @@ export interface AgentContext {
 
 export const CreateAgentSchema = z
   .object({
-    name: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/),
+    name: z
+      .string()
+      .min(1)
+      .max(100)
+      .regex(/^[a-zA-Z0-9_-]+$/),
     endpoint: z.string().url(),
     permissions: z.array(AgentPermission).min(1).max(10),
     maxRequestsPerMinute: z.number().int().min(1).max(10000).default(100),
@@ -75,7 +83,12 @@ export type CreateAgent = z.infer<typeof CreateAgentSchema>;
 
 export const UpdateAgentSchema = z
   .object({
-    name: z.string().min(1).max(100).regex(/^[a-zA-Z0-9_-]+$/).optional(),
+    name: z
+      .string()
+      .min(1)
+      .max(100)
+      .regex(/^[a-zA-Z0-9_-]+$/)
+      .optional(),
     endpoint: z.string().url().optional(),
     permissions: z.array(AgentPermission).min(1).max(10).optional(),
     status: AgentStatus.optional(),

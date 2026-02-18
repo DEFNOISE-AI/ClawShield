@@ -1,6 +1,15 @@
 // Copyright (c) 2026 DEFNOISE AI — Licensed under AGPL-3.0. See LICENSE.
 
-import { pgTable, uuid, varchar, text, timestamp, boolean, integer, jsonb } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  jsonb,
+} from 'drizzle-orm/pg-core';
 
 export const agents = pgTable('agents', {
   id: uuid('id').primaryKey().defaultRandom(),

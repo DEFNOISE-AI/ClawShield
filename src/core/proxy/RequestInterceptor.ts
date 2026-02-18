@@ -43,7 +43,7 @@ export class RequestInterceptor {
       path: request.url,
       body,
       headers: rawHeaders,
-      ip: request.headers['x-forwarded-for'] as string ?? request.ip,
+      ip: (request.headers['x-forwarded-for'] as string) ?? request.ip,
     };
   }
 

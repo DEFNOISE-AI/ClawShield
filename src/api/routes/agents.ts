@@ -5,7 +5,11 @@ import { eq } from 'drizzle-orm';
 import { hash } from 'argon2';
 import { randomBytes } from 'node:crypto';
 import { agents, agentCommunicationRules } from '../../db/schema/agents.js';
-import { CreateAgentSchema, UpdateAgentSchema, CommunicationRuleSchema } from '../schemas/agent.schema.js';
+import {
+  CreateAgentSchema,
+  UpdateAgentSchema,
+  CommunicationRuleSchema,
+} from '../schemas/agent.schema.js';
 import { validateBody } from '../middlewares/validation.middleware.js';
 import { createAuthMiddleware } from '../middlewares/auth.middleware.js';
 import type { TokenManager } from '../../core/crypto/TokenManager.js';
@@ -76,7 +80,12 @@ export async function agentRoutes(
 
       // Generate API key and hash it
       const apiKey = randomBytes(32).toString('hex');
-      const apiKeyHash = await hash(apiKey, { type: 2, memoryCost: 65536, timeCost: 3, parallelism: 4 });
+      const apiKeyHash = await hash(apiKey, {
+        type: 2,
+        memoryCost: 65536,
+        timeCost: 3,
+        parallelism: 4,
+      });
 
       const [agent] = await db
         .insert(agents)
@@ -153,10 +162,7 @@ export async function agentRoutes(
         maxMessagesPerMinute: number;
       };
 
-      const [rule] = await db
-        .insert(agentCommunicationRules)
-        .values(body)
-        .returning();
+      const [rule] = await db.insert(agentCommunicationRules).values(body).returning();
 
       if (!rule) throw new Error('Failed to create communication rule');
       return reply.status(201).send(rule);

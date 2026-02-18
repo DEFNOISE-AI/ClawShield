@@ -68,9 +68,7 @@ describe('Analyzer Integration', () => {
 
     it('should flag dynamic fetch calls', async () => {
       const result = await analyzer.analyzeSkill(dynamicFetchSkill);
-      expect(
-        result.vulnerabilities?.some((v) => v.type === 'network_request'),
-      ).toBe(true);
+      expect(result.vulnerabilities?.some((v) => v.type === 'network_request')).toBe(true);
     });
   });
 
@@ -101,7 +99,12 @@ describe('Analyzer Integration', () => {
 
   describe('DynamicAnalyzer - sandbox security', () => {
     const dynamicAnalyzer = new DynamicAnalyzer();
-    const config = { timeout: 3000, memoryLimit: 50 * 1024 * 1024, networkAccess: false, fileSystemAccess: false };
+    const config = {
+      timeout: 3000,
+      memoryLimit: 50 * 1024 * 1024,
+      networkAccess: false,
+      fileSystemAccess: false,
+    };
 
     it('should prevent file system access', async () => {
       const result = await dynamicAnalyzer.execute(
@@ -122,10 +125,7 @@ describe('Analyzer Integration', () => {
     });
 
     it('should trap process.env access', async () => {
-      const result = await dynamicAnalyzer.execute(
-        `const key = process.env.SECRET_KEY;`,
-        config,
-      );
+      const result = await dynamicAnalyzer.execute(`const key = process.env.SECRET_KEY;`, config);
       expect(result.safe).toBe(false);
     });
   });

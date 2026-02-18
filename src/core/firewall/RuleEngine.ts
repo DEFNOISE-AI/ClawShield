@@ -17,10 +17,7 @@ export class RuleEngine {
   ) {}
 
   async loadRules(): Promise<void> {
-    const rows = await this.db
-      .select()
-      .from(firewallRules)
-      .where(eq(firewallRules.enabled, true));
+    const rows = await this.db.select().from(firewallRules).where(eq(firewallRules.enabled, true));
 
     this.rulesCache = rows
       .map((r) => ({
@@ -39,9 +36,7 @@ export class RuleEngine {
     this.logger.debug({ ruleCount: this.rulesCache.length }, 'Firewall rules loaded');
   }
 
-  async evaluate(
-    context: Record<string, unknown>,
-  ): Promise<InspectionResult> {
+  async evaluate(context: Record<string, unknown>): Promise<InspectionResult> {
     if (Date.now() - this.lastCacheRefresh > this.CACHE_TTL) {
       await this.loadRules();
     }

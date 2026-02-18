@@ -93,10 +93,7 @@ export class AgentMonitor {
       if (agent.requestCount > 0) {
         const errorRate = agent.errorCount / agent.requestCount;
         if (errorRate > 0.5) {
-          this.logger.warn(
-            { agentId: agent.agentId, errorRate },
-            'Agent has high error rate',
-          );
+          this.logger.warn({ agentId: agent.agentId, errorRate }, 'Agent has high error rate');
         }
       }
     }

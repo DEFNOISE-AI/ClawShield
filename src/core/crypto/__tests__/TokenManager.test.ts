@@ -62,10 +62,7 @@ describe('TokenManager', () => {
     });
 
     it('should reject an expired token', () => {
-      const expiredManager = new TokenManager(
-        { ...config, expiresIn: '0s' },
-        mockRedis as never,
-      );
+      const expiredManager = new TokenManager({ ...config, expiresIn: '0s' }, mockRedis as never);
       const token = expiredManager.signAccessToken(testPayload);
       expect(() => expiredManager.verifyToken(token)).toThrow('expired');
     });

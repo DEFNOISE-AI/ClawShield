@@ -4,7 +4,11 @@ import { createHash } from 'node:crypto';
 import { StaticAnalyzer } from './StaticAnalyzer.js';
 import { DynamicAnalyzer } from './DynamicAnalyzer.js';
 import { PromptInjectionDetector } from './PromptInjectionDetector.js';
-import type { SkillAnalysisResult, SandboxConfig, MalwareSignature } from '../../types/skill.types.js';
+import type {
+  SkillAnalysisResult,
+  SandboxConfig,
+  MalwareSignature,
+} from '../../types/skill.types.js';
 import type { Logger } from '../../utils/logger.js';
 
 export class SkillAnalyzer {
@@ -124,7 +128,11 @@ export class SkillAnalyzer {
 
   private calculateRiskScore(
     staticResult: { severity: string; vulnerabilities: { severity: string }[] },
-    dynamicResult: { suspiciousBehavior: string[]; networkAttempts: string[]; fsAttempts: string[] },
+    dynamicResult: {
+      suspiciousBehavior: string[];
+      networkAttempts: string[];
+      fsAttempts: string[];
+    },
     injectionResult: { confidence: number },
   ): number {
     let score = 0;

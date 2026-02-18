@@ -7,8 +7,16 @@ export interface InjectionDetectionResult {
 }
 
 export class PromptInjectionDetector {
-  private static readonly INJECTION_PATTERNS: Array<{ pattern: RegExp; name: string; weight: number }> = [
-    { pattern: /ignore\s+(all\s+)?previous\s+instructions?/i, name: 'ignore_previous', weight: 0.9 },
+  private static readonly INJECTION_PATTERNS: Array<{
+    pattern: RegExp;
+    name: string;
+    weight: number;
+  }> = [
+    {
+      pattern: /ignore\s+(all\s+)?previous\s+instructions?/i,
+      name: 'ignore_previous',
+      weight: 0.9,
+    },
     { pattern: /system\s*:\s*you\s+are/i, name: 'system_override', weight: 0.8 },
     { pattern: /\[INST\]/i, name: 'inst_token', weight: 0.7 },
     { pattern: /<\|im_start\|>/i, name: 'im_start_token', weight: 0.8 },
@@ -17,7 +25,11 @@ export class PromptInjectionDetector {
     { pattern: /override\s+your\s+rules/i, name: 'override_rules', weight: 0.9 },
     { pattern: /pretend\s+you\s+are/i, name: 'role_override', weight: 0.6 },
     { pattern: /new\s+instructions?\s*:/i, name: 'new_instructions', weight: 0.7 },
-    { pattern: /forget\s+(all\s+)?(your\s+)?instructions?/i, name: 'forget_instructions', weight: 0.9 },
+    {
+      pattern: /forget\s+(all\s+)?(your\s+)?instructions?/i,
+      name: 'forget_instructions',
+      weight: 0.9,
+    },
     { pattern: /you\s+are\s+now\s+a/i, name: 'identity_override', weight: 0.7 },
     { pattern: /act\s+as\s+(if|though)\s+you/i, name: 'act_as', weight: 0.5 },
     { pattern: /do\s+not\s+follow\s+(any|your)/i, name: 'no_follow', weight: 0.8 },

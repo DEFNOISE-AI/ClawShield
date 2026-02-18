@@ -34,7 +34,11 @@ export class ThreatDetector {
     { pattern: /\$\{.*\}/g, name: 'template_injection', weight: 0.3 },
     { pattern: /process\.env/gi, name: 'env_access', weight: 0.4 },
     { pattern: /child_process/gi, name: 'command_exec', weight: 0.6 },
-    { pattern: /require\s*\(\s*['"]child_process['"]\s*\)/gi, name: 'require_child_process', weight: 0.8 },
+    {
+      pattern: /require\s*\(\s*['"]child_process['"]\s*\)/gi,
+      name: 'require_child_process',
+      weight: 0.8,
+    },
     { pattern: /exec\s*\(/gi, name: 'exec_call', weight: 0.5 },
   ];
 
@@ -54,7 +58,12 @@ export class ThreatDetector {
       for (const { pattern, name, weight } of this.suspiciousPatterns) {
         const triggered = pattern.test(context.body);
         pattern.lastIndex = 0; // Reset regex state
-        factors.push({ name, weight, triggered, detail: triggered ? 'Found in request body' : undefined });
+        factors.push({
+          name,
+          weight,
+          triggered,
+          detail: triggered ? 'Found in request body' : undefined,
+        });
       }
     }
 

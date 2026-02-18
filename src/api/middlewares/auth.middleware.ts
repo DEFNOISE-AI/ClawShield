@@ -37,8 +37,7 @@ export function createAuthMiddleware(tokenManager: TokenManager) {
         role: payload.role,
       };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Token verification failed';
+      const message = error instanceof Error ? error.message : 'Token verification failed';
       throw new AuthError(message);
     }
   };

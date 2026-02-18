@@ -3,7 +3,11 @@
 import * as acorn from 'acorn';
 import { walk } from 'estree-walker';
 import type { Node } from 'estree';
-import type { StaticAnalysisResult, SkillVulnerability, SkillSeverity } from '../../types/skill.types.js';
+import type {
+  StaticAnalysisResult,
+  SkillVulnerability,
+  SkillSeverity,
+} from '../../types/skill.types.js';
 
 const DANGEROUS_FUNCTIONS = new Set(['eval', 'Function', 'setTimeout', 'setInterval']);
 

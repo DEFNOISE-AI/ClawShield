@@ -32,7 +32,9 @@ export class ResponseInterceptor {
       for (const pattern of this.credentialPatterns) {
         pattern.lastIndex = 0;
         if (pattern.test(body)) {
-          issues.push(`Potential credential leak detected (pattern: ${pattern.source.slice(0, 30)}...)`);
+          issues.push(
+            `Potential credential leak detected (pattern: ${pattern.source.slice(0, 30)}...)`,
+          );
           pattern.lastIndex = 0;
         }
       }
@@ -60,7 +62,10 @@ export class ResponseInterceptor {
 
     // Check for sensitive error details in response
     if (body && statusCode >= 500) {
-      if (/\bat\s+\S+\s+\(.*:\d+:\d+\)/.test(body) || (body.includes('stack') && body.includes('at '))) {
+      if (
+        /\bat\s+\S+\s+\(.*:\d+:\d+\)/.test(body) ||
+        (body.includes('stack') && body.includes('at '))
+      ) {
         issues.push('Stack trace exposed in error response');
       }
       if (/ECONNREFUSED|ENOTFOUND|ETIMEDOUT/.test(body)) {
@@ -69,7 +74,10 @@ export class ResponseInterceptor {
     }
 
     if (issues.length > 0) {
-      this.logger.warn({ statusCode, issueCount: issues.length }, 'Response inspection found issues');
+      this.logger.warn(
+        { statusCode, issueCount: issues.length },
+        'Response inspection found issues',
+      );
     }
 
     return {

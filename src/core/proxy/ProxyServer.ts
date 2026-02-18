@@ -89,7 +89,8 @@ export class ProxyServer {
         onResponse: (_request, reply, res) => {
           const responseHeaders: Record<string, string | string[] | undefined> = {};
           if (res && 'headers' in res) {
-            const rawHeaders = (res as { headers: Record<string, string | string[] | undefined> }).headers;
+            const rawHeaders = (res as { headers: Record<string, string | string[] | undefined> })
+              .headers;
             Object.assign(responseHeaders, rawHeaders);
           }
 
@@ -192,22 +193,21 @@ export class ProxyServer {
 
           if (upstream.readyState === WebSocket.OPEN) {
             upstream.send(data);
-            this.logger.debug({ agentId, messageType: message.type }, 'WebSocket message forwarded');
+            this.logger.debug(
+              { agentId, messageType: message.type },
+              'WebSocket message forwarded',
+            );
           } else {
             const queued = !conn.alive;
             this.logger.warn(
               { agentId, upstreamState: upstream.readyState, queued },
               'Upstream not ready, message dropped',
             );
-            socket.send(
-              JSON.stringify({ type: 'error', error: 'Upstream connection not ready' }),
-            );
+            socket.send(JSON.stringify({ type: 'error', error: 'Upstream connection not ready' }));
           }
         } catch (error) {
           this.logger.error({ err: error }, 'WebSocket message processing error');
-          socket.send(
-            JSON.stringify({ type: 'error', error: 'Message processing failed' }),
-          );
+          socket.send(JSON.stringify({ type: 'error', error: 'Message processing failed' }));
         }
       });
 
@@ -218,7 +218,10 @@ export class ProxyServer {
           this.firewall.unregisterAgent(agentId);
         }
         this.upstreamConnections.delete(socket);
-        if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) {
+        if (
+          upstream.readyState === WebSocket.OPEN ||
+          upstream.readyState === WebSocket.CONNECTING
+        ) {
           upstream.close(1000, 'Client disconnected');
         }
         this.logger.info({ ip, agentId }, 'WebSocket disconnected');

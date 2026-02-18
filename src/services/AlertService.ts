@@ -60,10 +60,7 @@ export class AlertService {
       });
 
       if (!response.ok) {
-        this.logger.error(
-          { status: response.status },
-          'Webhook alert failed',
-        );
+        this.logger.error({ status: response.status }, 'Webhook alert failed');
       }
     } catch (error) {
       this.logger.error({ err: error }, 'Failed to send webhook alert');
