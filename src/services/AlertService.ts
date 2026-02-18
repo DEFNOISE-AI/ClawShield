@@ -3,7 +3,6 @@ import type { AlertPayload } from '../types/threat.types.js';
 
 export interface AlertConfig {
   webhookUrl?: string;
-  email?: string;
 }
 
 export class AlertService {

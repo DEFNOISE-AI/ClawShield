@@ -20,16 +20,20 @@ bash scripts/generate-keys.sh ./keys
 if [ ! -f .env ]; then
   echo "3. Creating .env from .env.example..."
   cp .env.example .env
-  # Fill in generated values
+  # Fill in generated values for local development
   ENCRYPTION_KEY=$(cat keys/encryption.key)
   if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s|^NODE_ENV=.*|NODE_ENV=development|" .env
     sed -i '' "s|^ENCRYPTION_KEY=.*|ENCRYPTION_KEY=${ENCRYPTION_KEY}|" .env
     sed -i '' "s|^JWT_PRIVATE_KEY_PATH=.*|JWT_PRIVATE_KEY_PATH=./keys/jwt_private.pem|" .env
     sed -i '' "s|^JWT_PUBLIC_KEY_PATH=.*|JWT_PUBLIC_KEY_PATH=./keys/jwt_public.pem|" .env
+    sed -i '' "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://postgres:password@localhost:5432/clawshield|" .env
   else
+    sed -i "s|^NODE_ENV=.*|NODE_ENV=development|" .env
     sed -i "s|^ENCRYPTION_KEY=.*|ENCRYPTION_KEY=${ENCRYPTION_KEY}|" .env
     sed -i "s|^JWT_PRIVATE_KEY_PATH=.*|JWT_PRIVATE_KEY_PATH=./keys/jwt_private.pem|" .env
     sed -i "s|^JWT_PUBLIC_KEY_PATH=.*|JWT_PUBLIC_KEY_PATH=./keys/jwt_public.pem|" .env
+    sed -i "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://postgres:password@localhost:5432/clawshield|" .env
   fi
   echo "   .env created and populated"
 else

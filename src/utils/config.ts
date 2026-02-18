@@ -40,7 +40,6 @@ const ConfigSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 
   ALERT_WEBHOOK_URL: z.string().url().optional().or(z.literal('')),
-  ALERT_EMAIL: z.string().email().optional().or(z.literal('')),
 
   CORS_ALLOWED_ORIGINS: z
     .string()

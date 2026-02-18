@@ -53,7 +53,6 @@ async function main(): Promise<void> {
   const alertService = new AlertService(
     {
       webhookUrl: config.ALERT_WEBHOOK_URL || undefined,
-      email: config.ALERT_EMAIL || undefined,
     },
     logger,
   );

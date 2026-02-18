@@ -190,7 +190,7 @@ See the full [API Reference](docs/api.md) for all endpoints.
 - **Database**: PostgreSQL 17 + Drizzle ORM
 - **Cache**: Redis 7.4
 - **Auth**: JWT RS256 + Argon2id
-- **Testing**: Vitest (143 tests)
+- **Testing**: Vitest (181 tests)
 
 ## Documentation
 

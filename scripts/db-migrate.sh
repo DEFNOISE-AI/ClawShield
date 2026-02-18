@@ -2,6 +2,6 @@
 set -euo pipefail
 
 echo "Running database migrations..."
-bunx drizzle-kit push
+bunx drizzle-kit migrate
 
 echo "Migrations complete."
