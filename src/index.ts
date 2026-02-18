@@ -66,7 +66,7 @@ async function main(): Promise<void> {
   skillAnalyzer.setMalwareSignatures(threatIntel.getSignatures());
 
   const agentMonitor = new AgentMonitor(redis, logger);
-  const _metricsCollector = new MetricsCollector(redis, logger);
+  new MetricsCollector(redis, logger);
 
   // Initialize firewall
   const firewall = new AgentFirewall(db, redis, logger, {
