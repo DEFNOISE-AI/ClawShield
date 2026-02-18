@@ -35,7 +35,7 @@ describe('MetricsCollector', () => {
   describe('recordRequest', () => {
     it('should increment total_requests counter', async () => {
       await metrics.recordRequest(false, 50);
-      const pipeline = mockRedis.pipeline();
+      mockRedis.pipeline();
       expect(mockRedis.pipeline).toHaveBeenCalled();
     });
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { createHash } from 'node:crypto';
 import { ThreatIntelligence } from '../ThreatIntelligence.js';
 import { createLogger } from '../../utils/logger.js';
 
@@ -104,8 +105,7 @@ describe('ThreatIntelligence', () => {
 
     it('should match by exact hash', () => {
       const code = 'malicious payload';
-      const crypto = require('node:crypto');
-      const codeHash = crypto.createHash('sha256').update(code).digest('hex');
+      const codeHash = createHash('sha256').update(code).digest('hex');
 
       intel.addSignature({
         id: 'sig-hash',
