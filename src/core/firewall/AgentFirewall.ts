@@ -3,7 +3,7 @@ import type { Redis } from 'ioredis';
 import { createHash } from 'node:crypto';
 import { RuleEngine } from './RuleEngine.js';
 import { ThreatDetector } from './ThreatDetector.js';
-import { agentCommunicationRules } from '../../db/schema/agents.js';
+import { agents as agentsTable, agentCommunicationRules } from '../../db/schema/agents.js';
 import { threats } from '../../db/schema/threats.js';
 import type { Database } from '../../db/client.js';
 import type { Logger } from '../../utils/logger.js';
@@ -330,6 +330,8 @@ export class AgentFirewall {
       name: context.name ?? agentId,
       status: context.status ?? 'active',
       permissions: context.permissions ?? [],
+      trustedDomains: context.trustedDomains ?? existing?.trustedDomains ?? [],
+      maxRequestsPerMinute: context.maxRequestsPerMinute ?? existing?.maxRequestsPerMinute ?? 100,
       requestCount: existing?.requestCount ?? 0,
       lastSeen: Date.now(),
       createdAt: existing?.createdAt ?? Date.now(),
@@ -338,6 +340,40 @@ export class AgentFirewall {
       connectedAt: context.connectedAt ?? Date.now(),
       ipAddress: context.ipAddress,
     });
+  }
+
+  async loadAgentFromDb(agentId: string): Promise<AgentContext | null> {
+    const [row] = await this.db
+      .select({
+        id: agentsTable.id,
+        name: agentsTable.name,
+        status: agentsTable.status,
+        permissions: agentsTable.permissions,
+        trustedDomains: agentsTable.trustedDomains,
+        maxRequestsPerMinute: agentsTable.maxRequestsPerMinute,
+      })
+      .from(agentsTable)
+      .where(eq(agentsTable.id, agentId))
+      .limit(1);
+
+    if (!row) return null;
+
+    const ctx: AgentContext = {
+      id: row.id,
+      name: row.name,
+      status: (row.status as AgentContext['status']) ?? 'active',
+      permissions: (row.permissions as AgentContext['permissions']) ?? [],
+      trustedDomains: row.trustedDomains ?? [],
+      maxRequestsPerMinute: row.maxRequestsPerMinute,
+      requestCount: 0,
+      lastSeen: Date.now(),
+      createdAt: Date.now(),
+      threatScore: 0,
+      recentMessages: [],
+    };
+
+    this.agentRegistry.set(agentId, ctx);
+    return ctx;
   }
 
   unregisterAgent(agentId: string): void {
@@ -349,19 +385,35 @@ export class AgentFirewall {
   }
 
   private async checkRateLimit(agentId: string): Promise<boolean> {
+    let ctx = this.agentRegistry.get(agentId);
+    if (!ctx) {
+      ctx = (await this.loadAgentFromDb(agentId)) ?? undefined;
+    }
+    const limit = ctx?.maxRequestsPerMinute ?? 100;
+
     const key = `agent:ratelimit:${agentId}`;
     const count = await this.redis.incr(key);
     if (count === 1) {
       await this.redis.expire(key, 60);
     }
-    return count <= 100;
+    return count <= limit;
   }
 
   private async isTrustedDomain(agentId: string, domain: string): Promise<boolean> {
-    const ctx = this.agentRegistry.get(agentId);
-    if (!ctx) return false;
-    // The agent's trusted domains are checked
-    return false; // Default deny for external domains
+    let ctx = this.agentRegistry.get(agentId);
+    if (!ctx) {
+      ctx = (await this.loadAgentFromDb(agentId)) ?? undefined;
+    }
+    if (!ctx || ctx.trustedDomains.length === 0) return false;
+
+    const normalizedDomain = domain.toLowerCase();
+    return ctx.trustedDomains.some((trusted) => {
+      const normalizedTrusted = trusted.toLowerCase();
+      return (
+        normalizedDomain === normalizedTrusted ||
+        normalizedDomain.endsWith(`.${normalizedTrusted}`)
+      );
+    });
   }
 
   private updateAgentContext(agentId: string): void {

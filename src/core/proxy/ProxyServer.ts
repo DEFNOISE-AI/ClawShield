@@ -12,11 +12,17 @@ export interface ProxyServerConfig {
   maxWsConnectionsPerIp: number;
 }
 
+interface UpstreamConnection {
+  ws: WebSocket;
+  alive: boolean;
+}
+
 export class ProxyServer {
   private readonly fastify: FastifyInstance;
   private readonly requestInterceptor: RequestInterceptor;
   private readonly responseInterceptor: ResponseInterceptor;
   private readonly wsConnections = new Map<string, number>();
+  private readonly upstreamConnections = new Map<WebSocket, UpstreamConnection>();
 
   constructor(
     private readonly firewall: AgentFirewall,
@@ -108,7 +114,6 @@ export class ProxyServer {
       const ip = (request.headers['x-forwarded-for'] as string) ?? request.ip;
       const agentId = request.headers['x-agent-id'] as string;
 
-      // Rate limit WS connections per IP
       const currentCount = this.wsConnections.get(ip) ?? 0;
       if (currentCount >= this.config.maxWsConnectionsPerIp) {
         this.logger.warn({ ip, currentCount }, 'WebSocket connection limit reached');
@@ -117,10 +122,47 @@ export class ProxyServer {
       }
       this.wsConnections.set(ip, currentCount + 1);
 
-      // Register the agent
       if (agentId) {
         this.firewall.registerAgent(agentId, { ipAddress: ip, connectedAt: Date.now() });
       }
+
+      const targetWsUrl = this.config.targetUrl.replace(/^http/, 'ws') + '/ws';
+      const upstream = new WebSocket(targetWsUrl, {
+        headers: {
+          'x-agent-id': agentId ?? '',
+          'x-forwarded-for': ip,
+          'x-clawshield-proxy': 'true',
+        },
+        handshakeTimeout: 10_000,
+      });
+
+      const conn: UpstreamConnection = { ws: upstream, alive: false };
+      this.upstreamConnections.set(socket, conn);
+
+      upstream.on('open', () => {
+        conn.alive = true;
+        this.logger.info({ ip, agentId, target: targetWsUrl }, 'Upstream WebSocket connected');
+      });
+
+      upstream.on('message', (data: WebSocket.RawData) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(data);
+        }
+      });
+
+      upstream.on('close', (code, reason) => {
+        this.logger.info({ ip, agentId, code }, 'Upstream WebSocket closed');
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close(code, reason);
+        }
+      });
+
+      upstream.on('error', (err) => {
+        this.logger.error({ err, ip, agentId }, 'Upstream WebSocket error');
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close(1011, 'Upstream connection failed');
+        }
+      });
 
       this.logger.info({ ip, agentId }, 'WebSocket connected');
 
@@ -146,8 +188,19 @@ export class ProxyServer {
             return;
           }
 
-          // Forward to OpenClaw target (in production, this would be the actual forwarding)
-          this.logger.debug({ agentId, messageType: message.type }, 'WebSocket message forwarded');
+          if (upstream.readyState === WebSocket.OPEN) {
+            upstream.send(data);
+            this.logger.debug({ agentId, messageType: message.type }, 'WebSocket message forwarded');
+          } else {
+            const queued = !conn.alive;
+            this.logger.warn(
+              { agentId, upstreamState: upstream.readyState, queued },
+              'Upstream not ready, message dropped',
+            );
+            socket.send(
+              JSON.stringify({ type: 'error', error: 'Upstream connection not ready' }),
+            );
+          }
         } catch (error) {
           this.logger.error({ err: error }, 'WebSocket message processing error');
           socket.send(
@@ -161,6 +214,10 @@ export class ProxyServer {
         this.wsConnections.set(ip, Math.max(0, count - 1));
         if (agentId) {
           this.firewall.unregisterAgent(agentId);
+        }
+        this.upstreamConnections.delete(socket);
+        if (upstream.readyState === WebSocket.OPEN || upstream.readyState === WebSocket.CONNECTING) {
+          upstream.close(1000, 'Client disconnected');
         }
         this.logger.info({ ip, agentId }, 'WebSocket disconnected');
       });

@@ -48,6 +48,8 @@ export interface AgentContext {
   name: string;
   status: AgentStatus;
   permissions: AgentPermission[];
+  trustedDomains: string[];
+  maxRequestsPerMinute: number;
   requestCount: number;
   lastSeen: number;
   createdAt: number;
