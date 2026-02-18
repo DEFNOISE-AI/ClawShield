@@ -1,6 +1,6 @@
 <div align="center">
 
-![ClawShield](assets/clawshield-banner.png)
+![ClawShield](https://raw.githubusercontent.com/DEFNOISE-AI/ClawShield/master/assets/clawshield-banner.png)
 
 # ClawShield
 

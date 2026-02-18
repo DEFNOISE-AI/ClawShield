@@ -176,8 +176,8 @@ export class StaticAnalyzer {
         severity = 'critical';
         break;
       }
-      if (v.severity === 'high' && severity !== 'critical') severity = 'high';
-      if (v.severity === 'medium' && severity === 'info') severity = 'medium';
+      if (v.severity === 'high') severity = 'high';
+      else if (v.severity === 'medium' && severity === 'info') severity = 'medium';
     }
 
     return { severity, vulnerabilities, suspiciousPatterns };

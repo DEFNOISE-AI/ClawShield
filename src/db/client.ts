@@ -21,10 +21,9 @@ const schema = {
 let _client: ReturnType<typeof postgres> | null = null;
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
-export function createDatabaseClient(url: string, poolMin = 2, poolMax = 10) {
+export function createDatabaseClient(url: string, _poolMin = 2, poolMax = 10) {
   _client = postgres(url, {
     max: poolMax,
-    min: poolMin,
     idle_timeout: 20,
     max_lifetime: 60 * 30,
     connect_timeout: 10,

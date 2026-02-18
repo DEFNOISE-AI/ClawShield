@@ -87,15 +87,15 @@ export async function createServer(
   });
 
   // Rate limiting
-  await registerGlobalRateLimit(deps.redis, deps.redis, config.rateLimitMax, config.rateLimitWindow);
+  await registerGlobalRateLimit(fastify, deps.redis, config.rateLimitMax, config.rateLimitWindow);
 
   // Request timing hook
   fastify.addHook('onRequest', async (request) => {
-    (request as Record<string, unknown>).startTime = Date.now();
+    (request as unknown as Record<string, unknown>).startTime = Date.now();
   });
 
   fastify.addHook('onResponse', async (request, reply) => {
-    const startTime = (request as Record<string, unknown>).startTime as number;
+    const startTime = (request as unknown as Record<string, unknown>).startTime as number;
     const duration = Date.now() - startTime;
     deps.logger.info(
       {

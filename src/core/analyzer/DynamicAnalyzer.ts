@@ -126,7 +126,7 @@ export class DynamicAnalyzer {
         warn: () => {},
         info: () => {},
       },
-      setTimeout: (fn: () => void, ms: number) => {
+      setTimeout: (_fn: () => void, ms: number) => {
         if (ms > 1000) {
           suspiciousBehavior.push(`setTimeout with long delay: ${ms}ms`);
         }

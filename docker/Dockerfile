@@ -13,7 +13,7 @@ RUN addgroup -g 1001 -S clawshield && \
 # Dependencies stage
 FROM base AS deps
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production
+RUN HUSKY=0 bun install --frozen-lockfile --production
 
 # Build stage
 FROM base AS build
