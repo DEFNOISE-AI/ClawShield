@@ -14,7 +14,6 @@ export interface AgentHealthStatus {
 
 export class AgentMonitor {
   private monitorInterval: ReturnType<typeof setInterval> | null = null;
-  private readonly _HEALTH_KEY_PREFIX = 'agent:health:';
   private readonly METRICS_KEY_PREFIX = 'agent:metrics:';
 
   constructor(
