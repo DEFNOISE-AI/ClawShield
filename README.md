@@ -210,4 +210,4 @@ For security vulnerabilities, see [SECURITY.md](SECURITY.md).
 
 ClawShield is open source under the [AGPL-3.0 License](LICENSE).
 
-For commercial licensing options, contact [licensing@clawshield.io](mailto:licensing@clawshield.io).
+For commercial licensing options, contact [contact@dnai.agency](mailto:contact@dnai.agency).
