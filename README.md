@@ -1,5 +1,7 @@
 <div align="center">
 
+![ClawShield](assets/clawshield-banner.png)
+
 # ClawShield
 
 **Open-source security firewall for agent-to-agent AI communication**
