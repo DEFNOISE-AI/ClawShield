@@ -3,6 +3,19 @@
 import { createContext, runInContext, type Context } from 'node:vm';
 import type { DynamicAnalysisResult, SandboxConfig } from '../../types/skill.types.js';
 
+const MAX_BUFFER_ALLOC = 1024 * 1024; // 1MB per allocation
+
+function deepFreeze<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Object.isFrozen(obj)) return obj;
+  Object.freeze(obj);
+  for (const key of Object.getOwnPropertyNames(obj)) {
+    const desc = Object.getOwnPropertyDescriptor(obj, key);
+    if (desc?.value && typeof desc.value === 'object') deepFreeze(desc.value);
+  }
+  return obj;
+}
+
 export class DynamicAnalyzer {
   async execute(code: string, config: SandboxConfig): Promise<DynamicAnalysisResult> {
     const startTime = Date.now();
@@ -12,16 +25,33 @@ export class DynamicAnalyzer {
 
     // Build a restricted sandbox context
     const sandbox = this.createSandbox(networkAttempts, fsAttempts, suspiciousBehavior);
+    // Freeze sandbox and our own objects so prototype chain cannot be mutated
+    Object.freeze(sandbox);
+    for (const key of Object.keys(sandbox)) {
+      const v = (sandbox as Record<string, unknown>)[key];
+      if (v !== null && typeof v === 'object') {
+        try {
+          deepFreeze(v);
+        } catch {
+          // Some built-ins may throw when frozen; ignore
+        }
+      }
+    }
     const context: Context = createContext(sandbox, {
       name: 'skill-sandbox',
     });
 
+    // Strict mode IIFE prevents `this` from referencing the sandbox global (blocks constructor-chain escape)
+    const wrappedCode = `"use strict";\nvoid function() {\n${code}\n}();`;
+
     try {
-      runInContext(code, context, {
+      runInContext(wrappedCode, context, {
         timeout: config.timeout,
         displayErrors: false,
         breakOnSigint: true,
       });
+      // Let microtasks flush; async escape would have been scheduled here
+      await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err: unknown) {
       const msg =
         err instanceof Error
@@ -139,10 +169,29 @@ export class DynamicAnalyzer {
       fetch: fakeFetch,
       require: fakeRequire,
       process: fakeProcess,
-      Buffer: {
-        from: Buffer.from.bind(Buffer),
-        alloc: Buffer.alloc.bind(Buffer),
-      },
+      Buffer: (() => {
+        const limit = (size: number, label: string) => {
+          if (size > MAX_BUFFER_ALLOC) {
+            suspiciousBehavior.push(`Buffer allocation exceeds ${MAX_BUFFER_ALLOC} bytes: ${label}`);
+            return MAX_BUFFER_ALLOC;
+          }
+          return size;
+        };
+        return {
+          from: (input: unknown, ...args: unknown[]) => {
+            const buf = Buffer.from(input as never, ...(args as never[]));
+            if (buf.length > MAX_BUFFER_ALLOC) {
+              suspiciousBehavior.push(
+                `Buffer.from result exceeds ${MAX_BUFFER_ALLOC} bytes (${buf.length})`,
+              );
+              return buf.subarray(0, MAX_BUFFER_ALLOC);
+            }
+            return buf;
+          },
+          alloc: (size: number, ...args: unknown[]) =>
+            Buffer.alloc(limit(size, 'alloc'), ...(args as [never])),
+        };
+      })(),
       JSON,
       Math,
       Date,
@@ -154,7 +203,6 @@ export class DynamicAnalyzer {
       RegExp,
       Map,
       Set,
-      Promise,
       Error,
       TypeError,
       RangeError,

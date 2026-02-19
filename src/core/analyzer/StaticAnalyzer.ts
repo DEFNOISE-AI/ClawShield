@@ -13,6 +13,12 @@ const DANGEROUS_FUNCTIONS = new Set(['eval', 'Function', 'setTimeout', 'setInter
 
 const DANGEROUS_MODULES = new Set(['child_process', 'cluster', 'dgram', 'dns', 'net', 'tls']);
 
+/** Property access that can be used to escape vm sandbox via prototype chain */
+const DANGEROUS_PROPERTIES = new Set(['constructor', '__proto__', 'prototype']);
+
+/** Globals that enable escape or reflection attacks */
+const DANGEROUS_GLOBALS = new Set(['Proxy', 'Reflect']);
+
 function isObfuscated(text: string): boolean {
   if (text.length < 30) return false;
   if (/^[0-9a-fA-F]{30,}$/.test(text)) return true;
@@ -112,6 +118,103 @@ export class StaticAnalyzer {
               });
             }
           }
+        }
+
+        // Detect new Function() — vm escape vector (NewExpression, not CallExpression)
+        if (node.type === 'NewExpression') {
+          const callee = node.callee;
+          if (callee.type === 'Identifier' && callee.name === 'Function') {
+            vulnerabilities.push({
+              type: 'dangerous_function',
+              severity: 'critical',
+              description: 'Uses new Function() — sandbox escape vector',
+              line: node.loc?.start.line,
+              column: node.loc?.start.column,
+            });
+            suspiciousPatterns.push('new Function() detected');
+          }
+          if (callee.type === 'Identifier' && DANGEROUS_GLOBALS.has(callee.name)) {
+            vulnerabilities.push({
+              type: 'sandbox_escape',
+              severity: 'critical',
+              description: `Uses ${callee.name} — enables sandbox escape`,
+              line: node.loc?.start.line,
+              column: node.loc?.start.column,
+            });
+            suspiciousPatterns.push(`${callee.name} usage detected`);
+          }
+        }
+
+        // Detect constructor / __proto__ / prototype access — vm escape chain
+        if (node.type === 'MemberExpression') {
+          const prop =
+            node.property.type === 'Identifier'
+              ? node.property.name
+              : node.property.type === 'Literal' && typeof node.property.value === 'string'
+                ? node.property.value
+                : null;
+          if (prop && DANGEROUS_PROPERTIES.has(prop)) {
+            vulnerabilities.push({
+              type: 'sandbox_escape',
+              severity: 'critical',
+              description: `Access to ${prop} — sandbox escape vector`,
+              line: node.loc?.start.line,
+              column: node.loc?.start.column,
+            });
+            suspiciousPatterns.push(`${prop} access detected`);
+          }
+          // arguments.callee — escape vector in non-strict mode
+          if (
+            node.object.type === 'Identifier' &&
+            node.object.name === 'arguments' &&
+            node.property.type === 'Identifier' &&
+            node.property.name === 'callee'
+          ) {
+            vulnerabilities.push({
+              type: 'sandbox_escape',
+              severity: 'critical',
+              description: 'arguments.callee — sandbox escape vector',
+              line: node.loc?.start.line,
+            });
+            suspiciousPatterns.push('arguments.callee detected');
+          }
+          // Proxy / Reflect usage (e.g. Reflect.get, Proxy.revocable)
+          if (
+            node.object.type === 'Identifier' &&
+            DANGEROUS_GLOBALS.has(node.object.name)
+          ) {
+            vulnerabilities.push({
+              type: 'sandbox_escape',
+              severity: 'critical',
+              description: `${node.object.name} usage — enables sandbox escape`,
+              line: node.loc?.start.line,
+              column: node.loc?.start.column,
+            });
+            suspiciousPatterns.push(`${node.object.name} usage detected`);
+          }
+        }
+
+        // Detect dynamic import() — ImportExpression
+        if (node.type === 'ImportExpression') {
+          vulnerabilities.push({
+            type: 'dynamic_import',
+            severity: 'critical',
+            description: 'Dynamic import() — bypasses static module checks',
+            line: node.loc?.start.line,
+            column: node.loc?.start.column,
+          });
+          suspiciousPatterns.push('Dynamic import() detected');
+        }
+
+        // Detect with statement — scope manipulation
+        if (node.type === 'WithStatement') {
+          vulnerabilities.push({
+            type: 'sandbox_escape',
+            severity: 'critical',
+            description: 'with statement — scope manipulation',
+            line: node.loc?.start.line,
+          });
+          suspiciousPatterns.push('with statement detected');
         }
 
         // Detect import declarations for dangerous modules

@@ -14,6 +14,11 @@ import {
   infiniteLoopSkill,
   importDangerousSkill,
   dynamicFetchSkill,
+  constructorEscapeSkill,
+  newFunctionEscapeSkill,
+  protoEscapeSkill,
+  proxyEscapeSkill,
+  dynamicImportSkill,
 } from '../fixtures/skills.js';
 
 const logger = createLogger('silent');
@@ -69,6 +74,36 @@ describe('Analyzer Integration', () => {
     it('should flag dynamic fetch calls', async () => {
       const result = await analyzer.analyzeSkill(dynamicFetchSkill);
       expect(result.vulnerabilities?.some((v) => v.type === 'network_request')).toBe(true);
+    });
+
+    it('should reject constructor chain escape (static gate)', async () => {
+      const result = await analyzer.analyzeSkill(constructorEscapeSkill);
+      expect(result.safe).toBe(false);
+      expect(result.vulnerabilities?.some((v) => v.type === 'sandbox_escape')).toBe(true);
+    });
+
+    it('should reject new Function() escape (static gate)', async () => {
+      const result = await analyzer.analyzeSkill(newFunctionEscapeSkill);
+      expect(result.safe).toBe(false);
+      expect(result.vulnerabilities?.some((v) => v.type === 'dangerous_function')).toBe(true);
+    });
+
+    it('should reject __proto__ escape (static gate)', async () => {
+      const result = await analyzer.analyzeSkill(protoEscapeSkill);
+      expect(result.safe).toBe(false);
+      expect(result.vulnerabilities?.some((v) => v.type === 'sandbox_escape')).toBe(true);
+    });
+
+    it('should reject Proxy escape (static gate)', async () => {
+      const result = await analyzer.analyzeSkill(proxyEscapeSkill);
+      expect(result.safe).toBe(false);
+      expect(result.vulnerabilities?.some((v) => v.type === 'sandbox_escape')).toBe(true);
+    });
+
+    it('should reject dynamic import (static gate)', async () => {
+      const result = await analyzer.analyzeSkill(dynamicImportSkill);
+      expect(result.safe).toBe(false);
+      expect(result.vulnerabilities?.some((v) => v.type === 'dynamic_import')).toBe(true);
     });
   });
 

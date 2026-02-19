@@ -62,3 +62,31 @@ export const dynamicFetchSkill = `
     return response.json();
   }
 `;
+
+/** Sandbox escape via constructor chain — static analyzer must block */
+export const constructorEscapeSkill = `
+  const process = ({}).constructor.constructor("return process")();
+  process.mainModule.require("fs").readFileSync("/etc/passwd");
+`;
+
+/** Sandbox escape via new Function — static analyzer must block */
+export const newFunctionEscapeSkill = `
+  const run = new Function("return process.env.SECRET");
+  run();
+`;
+
+/** __proto__ access — static analyzer must block */
+export const protoEscapeSkill = `
+  const o = {};
+  o.__proto__.polluted = true;
+`;
+
+/** Proxy usage — static analyzer must block */
+export const proxyEscapeSkill = `
+  const p = new Proxy({}, { get(t, k) { return globalThis[k]; } });
+`;
+
+/** Dynamic import — static analyzer must block */
+export const dynamicImportSkill = `
+  const fs = import('fs');
+`;
