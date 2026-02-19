@@ -98,7 +98,11 @@ describe('StaticAnalyzer', () => {
       const c = this.constructor.constructor("return process")();
     `);
     expect(result.severity).toBe('critical');
-    expect(result.vulnerabilities.some((v) => v.type === 'sandbox_escape' && v.description.includes('constructor'))).toBe(true);
+    expect(
+      result.vulnerabilities.some(
+        (v) => v.type === 'sandbox_escape' && v.description.includes('constructor'),
+      ),
+    ).toBe(true);
   });
 
   it('should detect __proto__ access as sandbox escape', () => {
@@ -106,7 +110,11 @@ describe('StaticAnalyzer', () => {
       const p = ({}).__proto__;
     `);
     expect(result.severity).toBe('critical');
-    expect(result.vulnerabilities.some((v) => v.type === 'sandbox_escape' && v.description.includes('__proto__'))).toBe(true);
+    expect(
+      result.vulnerabilities.some(
+        (v) => v.type === 'sandbox_escape' && v.description.includes('__proto__'),
+      ),
+    ).toBe(true);
   });
 
   it('should detect prototype access as sandbox escape', () => {
@@ -114,7 +122,11 @@ describe('StaticAnalyzer', () => {
       const p = Object.prototype;
     `);
     expect(result.severity).toBe('critical');
-    expect(result.vulnerabilities.some((v) => v.type === 'sandbox_escape' && v.description.includes('prototype'))).toBe(true);
+    expect(
+      result.vulnerabilities.some(
+        (v) => v.type === 'sandbox_escape' && v.description.includes('prototype'),
+      ),
+    ).toBe(true);
   });
 
   it('should detect Proxy usage as sandbox escape', () => {
@@ -122,7 +134,11 @@ describe('StaticAnalyzer', () => {
       const p = new Proxy({}, { get() { return 1; } });
     `);
     expect(result.severity).toBe('critical');
-    expect(result.vulnerabilities.some((v) => v.type === 'sandbox_escape' && v.description.includes('Proxy'))).toBe(true);
+    expect(
+      result.vulnerabilities.some(
+        (v) => v.type === 'sandbox_escape' && v.description.includes('Proxy'),
+      ),
+    ).toBe(true);
   });
 
   it('should detect Reflect usage as sandbox escape', () => {
@@ -130,7 +146,11 @@ describe('StaticAnalyzer', () => {
       const x = Reflect.get({ a: 1 }, 'a');
     `);
     expect(result.severity).toBe('critical');
-    expect(result.vulnerabilities.some((v) => v.type === 'sandbox_escape' && v.description.includes('Reflect'))).toBe(true);
+    expect(
+      result.vulnerabilities.some(
+        (v) => v.type === 'sandbox_escape' && v.description.includes('Reflect'),
+      ),
+    ).toBe(true);
   });
 
   it('should detect arguments.callee as sandbox escape', () => {
@@ -138,7 +158,11 @@ describe('StaticAnalyzer', () => {
       function f() { return arguments.callee; }
     `);
     expect(result.severity).toBe('critical');
-    expect(result.vulnerabilities.some((v) => v.type === 'sandbox_escape' && v.description.includes('arguments.callee'))).toBe(true);
+    expect(
+      result.vulnerabilities.some(
+        (v) => v.type === 'sandbox_escape' && v.description.includes('arguments.callee'),
+      ),
+    ).toBe(true);
   });
 
   it('should detect dynamic import() as critical', () => {
@@ -157,7 +181,8 @@ describe('StaticAnalyzer', () => {
     expect(
       result.vulnerabilities.some(
         (v) =>
-          (v.type === 'sandbox_escape' && v.description.includes('with')) || v.type === 'parse_error',
+          (v.type === 'sandbox_escape' && v.description.includes('with')) ||
+          v.type === 'parse_error',
       ),
     ).toBe(true);
   });

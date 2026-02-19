@@ -172,7 +172,9 @@ export class DynamicAnalyzer {
       Buffer: (() => {
         const limit = (size: number, label: string) => {
           if (size > MAX_BUFFER_ALLOC) {
-            suspiciousBehavior.push(`Buffer allocation exceeds ${MAX_BUFFER_ALLOC} bytes: ${label}`);
+            suspiciousBehavior.push(
+              `Buffer allocation exceeds ${MAX_BUFFER_ALLOC} bytes: ${label}`,
+            );
             return MAX_BUFFER_ALLOC;
           }
           return size;

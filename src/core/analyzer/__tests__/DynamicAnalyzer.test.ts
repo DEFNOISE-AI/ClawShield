@@ -105,21 +105,15 @@ describe('DynamicAnalyzer', () => {
   });
 
   it('should flag Buffer allocation over 1MB', async () => {
-    const result = await analyzer.execute(
-      `Buffer.alloc(2 * 1024 * 1024);`,
-      defaultConfig,
-    );
-    expect(result.suspiciousBehavior.some((b) => b.includes('Buffer') && b.includes('exceeds'))).toBe(
-      true,
-    );
+    const result = await analyzer.execute(`Buffer.alloc(2 * 1024 * 1024);`, defaultConfig);
+    expect(
+      result.suspiciousBehavior.some((b) => b.includes('Buffer') && b.includes('exceeds')),
+    ).toBe(true);
     expect(result.safe).toBe(false);
   });
 
   it('should allow Buffer allocation under 1MB', async () => {
-    const result = await analyzer.execute(
-      `const b = Buffer.alloc(100);`,
-      defaultConfig,
-    );
+    const result = await analyzer.execute(`const b = Buffer.alloc(100);`, defaultConfig);
     expect(result.safe).toBe(true);
     expect(result.suspiciousBehavior.filter((b) => b.includes('Buffer'))).toHaveLength(0);
   });
@@ -134,10 +128,7 @@ describe('DynamicAnalyzer', () => {
   });
 
   it('should not expose Promise in sandbox', async () => {
-    const result = await analyzer.execute(
-      `Promise.resolve(1).then(x => x);`,
-      defaultConfig,
-    );
+    const result = await analyzer.execute(`Promise.resolve(1).then(x => x);`, defaultConfig);
     // ReferenceError: Promise is not defined, or similar; execution fails without escaping
     expect(result).toBeDefined();
     expect(result.networkAttempts).toHaveLength(0);

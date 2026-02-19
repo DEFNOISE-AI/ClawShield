@@ -179,10 +179,7 @@ export class StaticAnalyzer {
             suspiciousPatterns.push('arguments.callee detected');
           }
           // Proxy / Reflect usage (e.g. Reflect.get, Proxy.revocable)
-          if (
-            node.object.type === 'Identifier' &&
-            DANGEROUS_GLOBALS.has(node.object.name)
-          ) {
+          if (node.object.type === 'Identifier' && DANGEROUS_GLOBALS.has(node.object.name)) {
             vulnerabilities.push({
               type: 'sandbox_escape',
               severity: 'critical',
